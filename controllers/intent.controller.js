@@ -9,7 +9,7 @@ const createIntent = async (req,res) => {
             amount: req.body.amount,
             currency: req.body.currency,
             payment_method_types: req.body.payment_method_types,
-            capture_method: req.body.capture_method,
+            capture_method: req.body.capture_method || "automatic",
         });
 
         if(!paymentIntent){
@@ -68,7 +68,9 @@ const refundForCreatedIntent = async (req,res) => {
 // Managing the route  -->  GET "/api/v1/get_intents" to get a List of all intents in the following "getAllIntents" function
 const getAllIntents = async (req,res) => {
     try{
-        const allIntents = await stripe.paymentIntents.list();
+        const allIntents = await stripe.paymentIntents.list({
+            limit: req.body.limit || 3
+        });
         if(!allIntents){
             return res.status(400).send("No Intent List Found")
         }
@@ -78,6 +80,7 @@ const getAllIntents = async (req,res) => {
         return res.status(500).send({ERROR: err.toString()})
     }
 }
+
 
 module.exports = {
     createIntent,
